@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مخطط الدراسة التقني | Tech Study Planner</title>
+  <!-- Google Font: Tajawal -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            tajawal: ['Tajawal', 'sans-serif'],
+          },
+          colors: {
+            espresso: '#2c1e15',
+            mocha: '#4a3325',
+            caramel: '#6b4224',
+            warmbrown: '#8b5a2b',
+            softbeige: '#f4ebe1',
+            creambg: '#fbf9f5',
+            borderbeige: '#decaba',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: #fbf9f5;
+      color: #2c1e15;
+    }
+    .card-flip {
+      perspective: 1000px;
+    }
+    .card-inner {
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .card-inner.flipped {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .code-ltr { direction: ltr; text-align: left; font-family: monospace; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-[#d8c3ad] selection:text-[#2c1d11]">
+
+  <!-- Header / Navbar -->
+  <header class="sticky top-0 z-40 bg-[#fffdfa]/95 backdrop-blur-md border-b border-[#decaba] shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-18 gap-3">
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#8b5a2b] to-[#4a3325] flex items-center justify-center text-white shadow-sm font-black text-lg">
+            📚
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-black text-[#2c1e15]">مخطط الدراسة التقني</h1>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f4ebe1] text-[#6b4224] border border-[#decaba]">تكنولوجيا</span>
+            </div>
+            <p class="text-[11px] text-[#6b5545] font-medium hidden sm:block">تصميم مواقع (2) • إدارة مشاريع البرمجية • قواعد البيانات</p>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-1.5 bg-[#f4ebe1] p-1.5 rounded-2xl border border-[#decaba]">
+          <button onclick="switchTab('planner')" id="nav-planner" class="nav-btn px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-[#6b4224] text-white shadow-xs">
+            📅 مخطط دراسي
+          </button>
+          <button onclick="switchTab('timer')" id="nav-timer" class="nav-btn px-4 py-1.5 rounded-xl text-xs font-bold transition-all text-[#4a3325] hover:bg-[#ebd9cb]">
+            ⏱️ مؤقت التركيز
+          </button>
+          <button onclick="switchTab('review')" id="nav-review" class="nav-btn px-4 py-1.5 rounded-xl text-xs font-bold transition-all text-[#4a3325] hover:bg-[#ebd9cb]">
+            📖 صفحة المراجعة
+          </button>
+          <button onclick="switchTab('kanban')" id="nav-kanban" class="nav-btn px-4 py-1.5 rounded-xl text-xs font-bold transition-all text-[#4a3325] hover:bg-[#ebd9cb]">
+            🗂️ صفحة التنظيم
+          </button>
+        </nav>
+
+        <!-- Right Tools -->
+        <div class="flex items-center gap-2">
+          <button onclick="openModal('videosModal')" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#5c3e29] bg-[#f7efe6] hover:bg-[#ede2d6] border border-[#decaba] rounded-xl transition-colors shadow-xs">
+            <span>🎥</span>
+            <span class="hidden sm:inline">فيديوهات المواد</span>
+          </button>
+          <button onclick="openModal('aiModal')" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#8b5a2b] via-[#6b4224] to-[#4a3325] hover:opacity-95 rounded-xl shadow-xs transition-transform active:scale-95">
+            <span>✨</span>
+            <span>مساعد الذكاء الاصطناعي</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Tabs -->
+      <div class="flex md:hidden overflow-x-auto py-2 gap-1 border-t border-[#ede2d6] no-scrollbar">
+        <button onclick="switchTab('planner')" id="mob-nav-planner" class="mob-nav-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-[#6b4224] text-white whitespace-nowrap">📅 مخطط دراسي</button>
+        <button onclick="switchTab('timer')" id="mob-nav-timer" class="mob-nav-btn px-3 py-1.5 rounded-xl text-xs font-bold text-[#4a3325] bg-[#f4ebe1] whitespace-nowrap">⏱️ مؤقت التركيز</button>
+        <button onclick="switchTab('review')" id="mob-nav-review" class="mob-nav-btn px-3 py-1.5 rounded-xl text-xs font-bold text-[#4a3325] bg-[#f4ebe1] whitespace-nowrap">📖 صفحة المراجعة</button>
+        <button onclick="switchTab('kanban')" id="mob-nav-kanban" class="mob-nav-btn px-3 py-1.5 rounded-xl text-xs font-bold text-[#4a3325] bg-[#f4ebe1] whitespace-nowrap">🗂️ صفحة التنظيم</button>
+      </div>
+
+      <!-- Subject Filter Ribbon -->
+      <div class="flex items-center justify-between py-2 border-t border-[#ede2d6] text-xs">
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <span class="text-[#7a6454] font-bold ml-1 shrink-0">المادة:</span>
+          <button onclick="setSubjectFilter('all')" id="sub-filter-all" class="sub-filter px-2.5 py-1 rounded-lg font-bold text-xs bg-[#4a3325] text-white shrink-0">جميع المواد (3)</button>
+          <button onclick="setSubjectFilter('web_design_2')" id="sub-filter-web_design_2" class="sub-filter px-2.5 py-1 rounded-lg font-bold text-xs bg-[#f4ebe1] text-[#4a3325] hover:bg-[#ede0d2] shrink-0">🌐 تصميم مواقع (2)</button>
+          <button onclick="setSubjectFilter('project_mgmt')" id="sub-filter-project_mgmt" class="sub-filter px-2.5 py-1 rounded-lg font-bold text-xs bg-[#f4ebe1] text-[#4a3325] hover:bg-[#ede0d2] shrink-0">📊 إدارة مشاريع</button>
+          <button onclick="setSubjectFilter('databases')" id="sub-filter-databases" class="sub-filter px-2.5 py-1 rounded-lg font-bold text-xs bg-[#f4ebe1] text-[#4a3325] hover:bg-[#ede0d2] shrink-0">💾 قواعد البيانات</button>
+        </div>
+        <div class="hidden lg:block text-xs font-medium text-[#7a6454]">
+          📅 الفصل الدراسي التكنولوجي
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 space-y-6">
+
+    <!-- Reminders / Alerts Banner -->
+    <div id="alertsBannerContainer" class="space-y-2"></div>
+
+    <!-- ================= PAGE 1: STUDY PLANNER ================= -->
+    <section id="page-planner" class="tab-page space-y-6">
+      <div class="bg-gradient-to-br from-[#f8f1e8] via-[#f3e7da] to-[#ede0d0] p-6 sm:p-8 rounded-3xl border border-[#dbc6b2] shadow-xs">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ebd9c7] text-[#5c3e29] text-xs font-extrabold mb-2 border border-[#d6beaa]">
+              🎯 الخطة الدراسية وتواريخ الإنجاز
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-[#2c1e15]">المخطط الدراسي للمواد التكنولوجية</h2>
+            <p class="text-xs sm:text-sm text-[#5d4739] mt-1 font-medium">تحديد تواريخ بداية ونهاية الإنجاز، قياس التقدم ومزامنة المواعيد مع تقويم Google.</p>
+          </div>
+          <button onclick="openModal('addTaskModal')" class="flex items-center gap-2 px-5 py-2.5 bg-[#6b4224] hover:bg-[#523118] text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all self-start md:self-auto">
+            <span>➕</span>
+            <span>إضافة مهمة دراسية جديدة</span>
+          </button>
+        </div>
+
+        <!-- Global Progress Bar -->
+        <div class="bg-white/80 p-4 rounded-2xl border border-[#d9c5b2] mb-6">
+          <div class="flex items-center justify-between text-xs font-bold text-[#3d2717] mb-2">
+            <span>نسبة إنجاز المهام الكلية المحددة</span>
+            <span id="overallPercentageText" class="text-sm font-black text-[#6b4224]">0%</span>
+          </div>
+          <div class="w-full bg-[#eedecf] h-3 rounded-full overflow-hidden">
+            <div id="overallProgressBar" class="h-full bg-gradient-to-r from-[#8b5a2b] to-[#4a3325] transition-all duration-500 rounded-full" style="width: 0%"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-[#6d5648] mt-2 font-medium">
+            <span id="totalTasksCountText">إجمالي المهام: 0</span>
+            <span id="inProgressTasksCountText">قيد العمل: 0</span>
+            <span id="completedTasksCountText">مكتملة: 0</span>
+          </div>
+        </div>
+
+        <!-- Course Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="courseCardsGrid"></div>
+      </div>
+
+      <!-- Tasks Filter and Search Bar -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#decaba] shadow-xs">
+        <input type="text" id="taskSearchInput" oninput="renderPlannerTasks()" placeholder="بحث بالمهام، التقنيات أو المفاهيم..." class="w-full sm:w-72 px-3.5 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15] focus:outline-none focus:ring-2 focus:ring-[#8b5a2b]">
+        
+        <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto no-scrollbar">
+          <span class="text-xs text-[#6e5849] font-bold shrink-0">الحالة:</span>
+          <button onclick="setPlannerStatusFilter('all')" class="status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-[#6b4224] text-white shrink-0" data-status="all">الكل</button>
+          <button onclick="setPlannerStatusFilter('todo')" class="status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f4ebe1] text-[#4a3325] hover:bg-[#ede0d2] shrink-0" data-status="todo">انتظار</button>
+          <button onclick="setPlannerStatusFilter('in_progress')" class="status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f4ebe1] text-[#4a3325] hover:bg-[#ede0d2] shrink-0" data-status="in_progress">تنفيذ</button>
+          <button onclick="setPlannerStatusFilter('completed')" class="status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-[#f4ebe1] text-[#4a3325] hover:bg-[#ede0d2] shrink-0" data-status="completed">مكتملة</button>
+        </div>
+      </div>
+
+      <!-- Tasks Timeline List -->
+      <div id="plannerTasksList" class="space-y-3"></div>
+    </section>
+
+    <!-- ================= PAGE 2: FOCUS TIMER ================= -->
+    <section id="page-timer" class="tab-page hidden space-y-6 max-w-4xl mx-auto">
+      <div class="text-center space-y-2">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#f4ebd9] text-[#6b4224] text-xs font-bold border border-[#dfcbb3]">
+          🔥 تقنية بومودورو للتركيز العميق
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-black text-[#2c1e15]">مؤقت التركيز وجلسات المذاكرة</h2>
+        <p class="text-xs sm:text-sm text-[#6b5546] font-medium max-w-md mx-auto">اختر المادة، استمع لبيئة هادئة وسجل دقائق دراستك الفعلية.</p>
+      </div>
+
+      <!-- Timer Control Card -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#decaba] shadow-sm relative text-center">
+        <!-- Target Course Selector -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 pb-5 border-b border-[#ebdccd]">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-[#4a3325]">المادة قيد التركيز:</span>
+            <select id="timerSubjectSelect" onchange="updateTimerSubject(this.value)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+              <option value="web_design_2">تصميم مواقع إنترنت (2)</option>
+              <option value="project_mgmt">إدارة مشاريع البرمجية</option>
+              <option value="databases">قواعد البيانات</option>
+            </select>
+          </div>
+          <!-- Ambient Sound -->
+          <div class="flex items-center gap-1.5 bg-[#f4ebe1] p-1 rounded-xl border border-[#decaba] text-xs font-semibold">
+            <span class="text-[#6b5545] px-1 text-[11px] font-bold">صوت هادئ:</span>
+            <button onclick="setAmbientSound('none')" id="snd-none" class="snd-btn px-2 py-1 rounded-lg text-[11px] bg-white text-[#2c1e15] shadow-xs">صامت</button>
+            <button onclick="setAmbientSound('rain')" id="snd-rain" class="snd-btn px-2 py-1 rounded-lg text-[11px] text-[#4a3325]">🌧️ مطر</button>
+            <button onclick="setAmbientSound('focus')" id="snd-focus" class="snd-btn px-2 py-1 rounded-lg text-[11px] text-[#4a3325]">🎧 تركيز</button>
+          </div>
+        </div>
+
+        <!-- Mode Buttons -->
+        <div class="flex justify-center gap-2 mb-8">
+          <button onclick="setTimerMode('focus')" id="tmode-focus" class="tmode-btn px-4 py-2 rounded-2xl text-xs font-bold bg-[#6b4224] text-white shadow-xs">جلسة تركيز (25 د)</button>
+          <button onclick="setTimerMode('short')" id="tmode-short" class="tmode-btn px-4 py-2 rounded-2xl text-xs font-bold bg-[#faf6f0] text-[#4a3325] hover:bg-[#ede0d2]">استراحة قصيرة (5 د)</button>
+          <button onclick="setTimerMode('long')" id="tmode-long" class="tmode-btn px-4 py-2 rounded-2xl text-xs font-bold bg-[#faf6f0] text-[#4a3325] hover:bg-[#ede0d2]">استراحة طويلة (15 د)</button>
+        </div>
+
+        <!-- Animated Circular Timer -->
+        <div class="flex flex-col items-center justify-center my-2">
+          <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center">
+            <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" class="stroke-[#eedecf]" stroke-width="6" fill="transparent"/>
+              <circle id="timerProgressCircle" cx="50" cy="50" r="45" stroke="#8b5a2b" stroke-width="6" fill="transparent" stroke-dasharray="283" stroke-dashoffset="0" stroke-linecap="round" class="transition-all duration-1000 ease-linear"/>
+            </svg>
+            <div class="absolute flex flex-col items-center">
+              <span id="timerDisplay" class="text-4xl sm:text-5xl font-black text-[#2c1e15] font-mono tracking-tight">25:00</span>
+              <span id="timerModeLabel" class="text-xs font-bold text-[#6b4224] mt-2 px-3 py-0.5 rounded-full bg-[#f4ebe1]">جلسة تركيز</span>
+              <span id="timerSubjectLabel" class="text-[11px] font-bold text-[#8b5a2b] mt-1">تصميم مواقع إنترنت (2)</span>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center gap-4 mt-8">
+            <button onclick="resetTimer()" class="p-3 bg-[#faf6f0] hover:bg-[#ede0d2] text-[#4a3325] rounded-2xl border border-[#decaba]" title="إعادة ضبط">🔄</button>
+            <button onclick="toggleTimer()" id="timerToggleBtn" class="px-8 py-3.5 bg-[#6b4224] hover:bg-[#523118] text-white rounded-2xl text-sm font-black shadow-md hover:shadow-lg transition-transform active:scale-95">▶️ ابدأ التركيز</button>
+            <button onclick="skipTimer()" class="p-3 bg-[#faf6f0] hover:bg-[#ede0d2] text-[#4a3325] rounded-2xl border border-[#decaba]" title="تخطي">⏭️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-[#decaba] flex items-center gap-4">
+          <div class="p-3 rounded-2xl bg-[#f4ebe1] text-xl">⏳</div>
+          <div>
+            <div class="text-xs text-[#7a6454] font-bold">دقائق التركيز اليوم</div>
+            <div id="todayMinutesText" class="text-xl font-black text-[#2c1e15]">0 دقيقة</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-[#decaba] flex items-center gap-4">
+          <div class="p-3 rounded-2xl bg-[#e7f5ed] text-xl">✅</div>
+          <div>
+            <div class="text-xs text-[#7a6454] font-bold">جلسات مكتملة اليوم</div>
+            <div id="todaySessionsCountText" class="text-xl font-black text-[#2c1e15]">0 جلسة</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-[#decaba] flex items-center gap-4">
+          <div class="p-3 rounded-2xl bg-[#faf0e6] text-xl">🏆</div>
+          <div>
+            <div class="text-xs text-[#7a6454] font-bold">إجمالي الجلسات</div>
+            <div id="totalSessionsCountText" class="text-xl font-black text-[#2c1e15]">0 جلسة</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PAGE 3: REVIEW HUB ================= -->
+    <section id="page-review" class="tab-page hidden space-y-6 max-w-5xl mx-auto">
+      <div class="bg-gradient-to-r from-[#f8f1e8] via-[#f3e7da] to-[#ede0d0] p-6 sm:p-8 rounded-3xl border border-[#dbc6b2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ebd7c3] text-[#5e3d23] text-xs font-bold border border-[#d6bfab] mb-2">
+            📖 مركز الاستذكار والمراجعة الذاتية
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black text-[#2c1e15]">صفحة المراجعة والاختبارات</h2>
+          <p class="text-xs sm:text-sm text-[#61493b] font-medium mt-1">بطاقات استذكار تفاعلية (3D Flashcards)، اختبارات ذاتية تفاعلية، وملخصات ذهبية.</p>
+        </div>
+        <div class="flex items-center gap-1.5 bg-white/80 p-1.5 rounded-2xl border border-[#decaba]">
+          <button onclick="setReviewTab('flashcards')" id="rev-tab-flashcards" class="rev-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#6b4224] text-white shadow-xs">بطاقات الاستذكار</button>
+          <button onclick="setReviewTab('quiz')" id="rev-tab-quiz" class="rev-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-[#4a3325] hover:bg-[#ede0d2]">الاختبار الذاتي</button>
+          <button onclick="setReviewTab('cheatsheet')" id="rev-tab-cheatsheet" class="rev-tab-btn px-3.5 py-1.5 rounded-xl text-xs font-bold text-[#4a3325] hover:bg-[#ede0d2]">الملخصات الذهبية</button>
+        </div>
+      </div>
+
+      <!-- Flashcards View -->
+      <div id="review-flashcards-view" class="space-y-4">
+        <div class="flex items-center justify-between text-xs font-bold text-[#6b4224]">
+          <span id="flashcardCounter">بطاقة 1 من 6</span>
+          <span class="text-[11px] text-[#7a6454]">انقر على البطاقة لقلبها وقراءة الشرح والكود</span>
+        </div>
+
+        <div class="card-flip max-w-xl mx-auto cursor-pointer" onclick="flipCurrentCard()">
+          <div id="activeFlashcardInner" class="card-inner relative w-full min-h-[300px] sm:min-h-[340px]">
+            <!-- Front -->
+            <div class="card-front absolute inset-0 bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#decaba] shadow-sm flex flex-col justify-between text-center">
+              <div class="flex items-center justify-between text-xs">
+                <span id="fcFrontSubject" class="px-2.5 py-0.5 rounded-md bg-[#f4ebe1] text-[#6b4224] font-bold">تصميم مواقع (2)</span>
+                <span class="text-[11px] text-[#9c8474]">🔄 انقر للقلب</span>
+              </div>
+              <div class="my-auto py-4">
+                <div class="text-3xl mb-3">💡</div>
+                <h3 id="fcFrontQuestion" class="text-base sm:text-lg font-black text-[#2c1e15] leading-relaxed">السؤال هنا</h3>
+              </div>
+              <div class="text-[11px] text-[#9c8474] font-medium">فكر في الإجابة ثم اقلب البطاقة</div>
+            </div>
+            <!-- Back -->
+            <div class="card-back absolute inset-0 bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#8b5a2b] shadow-md flex flex-col justify-between text-right overflow-y-auto">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-[#2d6a4f]">✅ الشرح النموذجي:</span>
+                <span class="text-[11px] text-[#9c8474]">🔄 انقر للعودة</span>
+              </div>
+              <div class="my-auto py-2 space-y-3">
+                <p id="fcBackAnswer" class="text-xs sm:text-sm font-semibold text-[#2c1e15] leading-relaxed">الإجابة والشرح هنا</p>
+                <div id="fcBackCodeWrapper" class="code-ltr p-3 bg-[#2c1e15] text-[#fbf9f5] rounded-xl text-xs overflow-x-auto hidden">
+                  <pre id="fcBackCode">code here</pre>
+                </div>
+              </div>
+              <div class="text-[11px] text-[#7a6454] pt-2 border-t border-[#f4ebe1]">مخطط الدراسة التقني</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-4 pt-2">
+          <button onclick="prevFlashcard()" class="px-5 py-2 rounded-xl bg-white hover:bg-[#f4ebe1] text-[#4a3325] text-xs font-bold border border-[#decaba] shadow-xs">السابق</button>
+          <button onclick="nextFlashcard()" class="px-5 py-2 rounded-xl bg-[#6b4224] hover:bg-[#523118] text-white text-xs font-bold shadow-xs">التالي</button>
+        </div>
+      </div>
+
+      <!-- Quiz View -->
+      <div id="review-quiz-view" class="hidden space-y-4 max-w-2xl mx-auto">
+        <div class="bg-white p-4 rounded-2xl border border-[#decaba] flex items-center justify-between text-xs font-bold text-[#4a3325]">
+          <span id="quizCounterText">السؤال 1 من 3</span>
+          <span id="quizScoreText" class="px-3 py-1 rounded-xl bg-[#f4ebe1] text-[#6b4224]">النتيجة: 0 / 0</span>
+        </div>
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#decaba] shadow-sm space-y-6">
+          <div class="flex items-center justify-between text-xs">
+            <span id="quizSubjectBadge" class="font-bold px-2 py-0.5 rounded-md bg-[#f4ebe1] text-[#6b4224]">المادة</span>
+            <span class="text-[11px] text-[#7a6454]">اختيار من متعدد</span>
+          </div>
+          <h3 id="quizQuestionText" class="text-base sm:text-lg font-black text-[#2c1e15] leading-relaxed">نص السؤال التقني هنا</h3>
+          <div id="quizOptionsList" class="space-y-2.5"></div>
+          <div id="quizExplanationCard" class="hidden p-4 rounded-2xl border text-xs sm:text-sm leading-relaxed space-y-1"></div>
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#ebdccd]">
+            <button id="quizActionBtn" onclick="handleQuizAction()" class="px-6 py-2.5 bg-[#6b4224] hover:bg-[#523118] text-white rounded-xl text-xs font-bold shadow-xs">تأكيد الإجابة</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cheatsheets View -->
+      <div id="review-cheatsheet-view" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-3xl border border-[#decaba] space-y-3">
+          <h4 class="text-sm font-black text-[#2c1e15]">🌐 تصميم مواقع إنترنت (2)</h4>
+          <div class="text-xs text-[#523d30] space-y-2 leading-relaxed">
+            <p><strong>Hooks:</strong> useState لتخزين الحالة، useEffect للآثار الجانبية ودوال التنظيف.</p>
+            <p><strong>Virtual DOM:</strong> نسخة خفيفة في الذاكرة لتطبيق خوارزمية Diffing وتحديث التغييرات فقط.</p>
+            <p><strong>Fetch & Async:</strong> استخدام async/await مع try...catch لاستدعاء الـ APIs.</p>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-3xl border border-[#decaba] space-y-3">
+          <h4 class="text-sm font-black text-[#2c1e15]">📊 إدارة مشاريع البرمجية</h4>
+          <div class="text-xs text-[#523d30] space-y-2 leading-relaxed">
+            <p><strong>أدوار السكروم:</strong> Product Owner (المنتج)، Scrum Master (العمليات)، Dev Team (التطوير).</p>
+            <p><strong>Gantt Chart:</strong> مخطط زمني يوضح المسار الحرج (Critical Path) الذي يحدد موعد التسليم.</p>
+            <p><strong>إدارة المخاطر:</strong> التجنب (Avoid)، التخفيف (Mitigate)، النقل (Transfer)، القبول (Accept).</p>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-3xl border border-[#decaba] space-y-3">
+          <h4 class="text-sm font-black text-[#2c1e15]">💾 قواعد البيانات</h4>
+          <div class="text-xs text-[#523d30] space-y-2 leading-relaxed">
+            <p><strong>التطبيع (3NF):</strong> إزالة التكرار والاعتماديات الانتقالية والجزئية.</p>
+            <p><strong>مبادئ ACID:</strong> الذرية (Atomicity)، الاتساق (Consistency)، العزل (Isolation)، الديمومة (Durability).</p>
+            <p><strong>Joins:</strong> INNER (المتقاطع فقط)، LEFT (كل الجدول الأيسر مع المطابق من الأيمن).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PAGE 4: TASK ORGANIZATION ================= -->
+    <section id="page-kanban" class="tab-page hidden space-y-6">
+      <div class="bg-gradient-to-r from-[#f8f1e8] via-[#f3e7da] to-[#ede0d0] p-6 sm:p-8 rounded-3xl border border-[#dbc6b2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ebd7c3] text-[#5e3d23] text-xs font-bold border border-[#d6bfab] mb-2">
+            🗂️ لوحة كانبان ومصفوفة التنظيم
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black text-[#2c1e15]">صفحة تنظيم المهام والتنبيهات</h2>
+          <p class="text-xs sm:text-sm text-[#61493b] font-medium mt-1">تتبع سير العمل خطوة بخطوة، ونقل المهام بين مراحل الإنجاز مع تنبيهات مخصصة.</p>
+        </div>
+        <button onclick="openModal('addReminderModal')" class="flex items-center gap-2 px-4 py-2 bg-[#6b4224] hover:bg-[#523118] text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 self-start md:self-auto">
+          <span>🔔</span>
+          <span>إضافة تنبيه لمادة</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Col 1 -->
+        <div class="bg-[#f7efe5] rounded-3xl p-5 border border-[#decaba] space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-[#9c8474]"></span>
+              <h3 class="text-sm font-black text-[#2c1e15]">قيد الانتظار (<span id="kbCountTodo">0</span>)</h3>
+            </div>
+            <button onclick="openModal('addTaskModal')" class="p-1 rounded-lg text-[#6b4224] hover:bg-[#ede0d2]">➕</button>
+          </div>
+          <div id="kbListTodo" class="space-y-3 min-h-[140px]"></div>
+        </div>
+
+        <!-- Col 2 -->
+        <div class="bg-[#f7efe5] rounded-3xl p-5 border border-[#decaba] space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-[#c27838]"></span>
+              <h3 class="text-sm font-black text-[#2c1e15]">قيد التنفيذ (<span id="kbCountInProgress">0</span>)</h3>
+            </div>
+          </div>
+          <div id="kbListInProgress" class="space-y-3 min-h-[140px]"></div>
+        </div>
+
+        <!-- Col 3 -->
+        <div class="bg-[#f7efe5] rounded-3xl p-5 border border-[#decaba] space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-[#2d6a4f]"></span>
+              <h3 class="text-sm font-black text-[#2c1e15]">تم الإنجاز (<span id="kbCountCompleted">0</span>)</h3>
+            </div>
+            <span>✅</span>
+          </div>
+          <div id="kbListCompleted" class="space-y-3 min-h-[140px]"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Add Task Modal -->
+  <div id="addTaskModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 border border-[#decaba] shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[#ebdccd] pb-3">
+        <h3 class="text-base font-black text-[#2c1e15]">إضافة مهمة دراسية جديدة</h3>
+        <button onclick="closeModal('addTaskModal')" class="text-xs text-[#7a6454] font-bold">✕</button>
+      </div>
+      <form onsubmit="handleAddTaskForm(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-[#4a3325] mb-1">المادة الدراسية:</label>
+          <select id="modalTaskSubject" class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15] font-semibold">
+            <option value="web_design_2">تصميم مواقع إنترنت (2) (CS-342)</option>
+            <option value="project_mgmt">إدارة مشاريع البرمجية (SE-415)</option>
+            <option value="databases">قواعد البيانات (CS-311)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[#4a3325] mb-1">عنوان المهمة:</label>
+          <input type="text" id="modalTaskTitle" required placeholder="مثال: بناء صفحة متجاوبة بـ React Hooks" class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[#4a3325] mb-1">تفاصيل ومخرجات المذاكرة:</label>
+          <textarea id="modalTaskDesc" rows="2" placeholder="ملاحظات المذاكرة وروابط المراجع..." class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-[#4a3325] mb-1">تاريخ بداية الإنجاز:</label>
+            <input type="date" id="modalTaskStartDate" required class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-[#4a3325] mb-1">تاريخ نهاية الإنجاز:</label>
+            <input type="date" id="modalTaskEndDate" required class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-[#4a3325] mb-1">الأولوية:</label>
+            <select id="modalTaskPriority" class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+              <option value="high">عالية (مستعجلة)</option>
+              <option value="medium" selected>متوسطة</option>
+              <option value="low">عادية</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-[#4a3325] mb-1">ساعات التقدير:</label>
+            <input type="number" id="modalTaskHours" min="1" max="100" value="4" class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#ebdccd]">
+          <button type="button" onclick="closeModal('addTaskModal')" class="px-4 py-2 text-xs font-bold text-[#7a6454]">إلغاء</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#6b4224] rounded-xl">حفظ المهمة</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Add Reminder Modal -->
+  <div id="addReminderModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 border border-[#decaba] shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[#ebdccd] pb-3">
+        <h3 class="text-base font-black text-[#2c1e15]">إضافة تنبيه دراسي لمادة</h3>
+        <button onclick="closeModal('addReminderModal')" class="text-xs text-[#7a6454] font-bold">✕</button>
+      </div>
+      <form onsubmit="handleAddReminderForm(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-[#4a3325] mb-1">المادة:</label>
+          <select id="modalRemSubject" class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+            <option value="web_design_2">تصميم مواقع إنترنت (2)</option>
+            <option value="project_mgmt">إدارة مشاريع البرمجية</option>
+            <option value="databases">قواعد البيانات</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[#4a3325] mb-1">عنوان التنبيه:</label>
+          <input type="text" id="modalRemTitle" required placeholder="مثال: تسليم مشروع React أو كويز SQL" class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-[#4a3325] mb-1">تاريخ الاستحقاق:</label>
+            <input type="date" id="modalRemDate" required class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-[#4a3325] mb-1">الوقت:</label>
+            <input type="time" id="modalRemTime" value="12:00" class="w-full px-3 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15]">
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-[#ebdccd]">
+          <button type="button" onclick="closeModal('addReminderModal')" class="px-4 py-2 text-xs font-bold text-[#7a6454]">إلغاء</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#6b4224] rounded-xl">تأكيد التنبيه</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Videos Modal -->
+  <div id="videosModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs hidden">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col border border-[#decaba] shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-[#ebdccd] flex items-center justify-between bg-[#fbf6f0]">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🎥</span>
+          <h3 class="text-base font-black text-[#2c1e15]">مكتبة الفيديوهات التعليمية المعتمدة</h3>
+        </div>
+        <button onclick="closeModal('videosModal')" class="p-1 rounded-lg text-[#7a6454] hover:bg-[#ede0d2]">✕</button>
+      </div>
+      <div id="videoPlayerArea" class="hidden p-4 bg-black">
+        <div class="relative aspect-video w-full rounded-2xl overflow-hidden">
+          <iframe id="videoIframe" src="" class="w-full h-full border-0" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div class="p-5 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-4" id="videosListGrid"></div>
+    </div>
+  </div>
+
+  <!-- 4. AI Assistant Modal -->
+  <div id="aiModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full h-[80vh] flex flex-col border border-[#decaba] shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-[#ebdccd] flex items-center justify-between bg-[#fbf6f0]">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">✨</span>
+          <div>
+            <h3 class="text-sm font-black text-[#2c1e15]">مساعد الذكاء الاصطناعي الأكاديمي</h3>
+            <span class="text-[10px] text-[#7a6454]">مرشد ذكي لمواد التكنولوجيا والبرمجيات</span>
+          </div>
+        </div>
+        <button onclick="closeModal('aiModal')" class="text-xs text-[#7a6454] font-bold">✕</button>
+      </div>
+
+      <div id="aiChatThread" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#fdfbf9] text-xs">
+        <div class="flex gap-2">
+          <div class="w-7 h-7 rounded-full bg-[#ebd8c6] text-[#5a3617] flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+          <div class="bg-white p-3.5 rounded-2xl border border-[#decaba] text-[#2c1e15] leading-relaxed max-w-[85%]">
+            مرحباً بك! 👋 أنا مساعدك الذكي لمواد: <strong>تصميم مواقع إنترنت (2)</strong>، <strong>إدارة مشاريع البرمجية</strong>، و <strong>قواعد البيانات</strong>.<br>
+            كيف يمكنني مساعدتك في كود React أو استعلامات SQL أو منهجية Scrum اليوم؟
+          </div>
+        </div>
+      </div>
+
+      <div class="px-4 py-2 border-t border-[#ebdccd] bg-[#fbf7f2] flex items-center gap-1.5 overflow-x-auto no-scrollbar text-[11px]">
+        <button onclick="sendAiQuickPrompt('اشرح لي الفرق بين 2NF و 3NF في قواعد البيانات بمثال عملي')" class="px-2.5 py-1 rounded-xl bg-white text-[#4a3325] border border-[#decaba] whitespace-nowrap">شرح Normalization 3NF</button>
+        <button onclick="sendAiQuickPrompt('كيف أكتب كود Custom React Hook لاستدعاء API؟')" class="px-2.5 py-1 rounded-xl bg-white text-[#4a3325] border border-[#decaba] whitespace-nowrap">كود React Hook</button>
+        <button onclick="sendAiQuickPrompt('ما هو المسار الحرج Critical Path في إدارة المشاريع؟')" class="px-2.5 py-1 rounded-xl bg-white text-[#4a3325] border border-[#decaba] whitespace-nowrap">المسار الحرج Gantt</button>
+      </div>
+
+      <form onsubmit="handleSendAiMessage(event)" class="p-3 border-t border-[#ebdccd] bg-white flex items-center gap-2">
+        <input type="text" id="aiInputText" placeholder="اكتب سؤالك التقني هنا..." class="flex-1 px-3.5 py-2 text-xs rounded-xl bg-[#faf6f0] border border-[#decaba] text-[#2c1e15] focus:outline-none focus:ring-1 focus:ring-[#8b5a2b]">
+        <button type="submit" class="px-4 py-2 bg-[#6b4224] hover:bg-[#523118] text-white rounded-xl text-xs font-bold">إرسال</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#f3eae0] border-t border-[#dfcebe] py-5 text-center text-xs text-[#6e5544] mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span class="font-bold text-[#382315]">منصة مخطط الدراسة التقني • تكنولوجيا ومعلومات</span>
+      <span>حفظ تلقائي للبيانات محلياً • تصميم عصري باللون البني والبيج</span>
+    </div>
+  </footer>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    const SUBJECTS = {
+      web_design_2: { name: 'تصميم مواقع إنترنت (2)', code: 'CS-342', color: '#8b5a2b', bg: '#fbf3eb' },
+      project_mgmt: { name: 'إدارة مشاريع البرمجية', code: 'SE-415', color: '#654321', bg: '#f6ece5' },
+      databases: { name: 'قواعد البيانات', code: 'CS-311', color: '#9a6b3e', bg: '#f9f2eb' }
+    };
+
+    const DEFAULT_TASKS = [
+      { id: 't1', subjectId: 'web_design_2', title: 'إتقان React Hooks (useState & useEffect)', description: 'بناء تطبيق تفاعلي مع LocalStorage واستدعاء REST API', startDate: '2026-10-10', endDate: '2026-10-14', priority: 'high', status: 'in_progress', hours: 6 },
+      { id: 't2', subjectId: 'web_design_2', title: 'تنسيق واجهة متجاوبة بالـ CSS Grid و Flexbox', description: 'لوحة تحكم تكنولوجية داعمة للهواتف والشاشات الكبيرة', startDate: '2026-10-15', endDate: '2026-10-19', priority: 'medium', status: 'todo', hours: 5 },
+      { id: 't3', subjectId: 'project_mgmt', title: 'إعداد ميثاق المشروع (Project Charter) ومخطط Gantt', description: 'تحديد النطاق وأصحاب المصلحة والجدول الزمني للبرمجية', startDate: '2026-10-10', endDate: '2026-10-16', priority: 'high', status: 'todo', hours: 8 },
+      { id: 't4', subjectId: 'databases', title: 'حل مسائل التطبيع والوصول إلى الشكل الطبيعي الثالث (3NF)', description: 'تحليل الجداول وإزالة الاعتماديات الانتقالية والجزئية', startDate: '2026-10-11', endDate: '2026-10-15', priority: 'high', status: 'in_progress', hours: 7 }
+    ];
+
+    const DEFAULT_REMINDERS = [
+      { id: 'r1', subjectId: 'web_design_2', title: 'موعد تسليم مشروع React المتجاوب', dueDate: '2026-10-18', dueTime: '23:59', dismissed: false },
+      { id: 'r2', subjectId: 'project_mgmt', title: 'مناقشة ميثاق المشروع وعرض مخطط Gantt', dueDate: '2026-10-15', dueTime: '11:00', dismissed: false },
+      { id: 'r3', subjectId: 'databases', title: 'اختبار عملي في استعلامات SQL و Normalization', dueDate: '2026-10-21', dueTime: '09:00', dismissed: false }
+    ];
+
+    const FLASHCARDS = [
+      { id: 'fc1', subjectId: 'web_design_2', q: 'ما دور useEffect في React ومتى تُنفذ دالة التنظيف (Cleanup)؟', a: 'تُستخدم للتعامل مع التأثيرات الجانبية. وتعمل دالة التنظيف عند إزالة المكون (Unmount) أو قبل إعادة تنفيذ التأثير لمنع تسرب الذاكرة.', code: 'useEffect(() => {\n  const timer = setInterval(() => {}, 1000);\n  return () => clearInterval(timer); // Cleanup\n}, []);' },
+      { id: 'fc2', subjectId: 'web_design_2', q: 'ما الفرق بين Real DOM و Virtual DOM؟', a: 'الـ Virtual DOM هو تمثيل خفيف بالذاكرة. تقوم React بمقارنة التغييرات (Diffing) وتحديث الأجزاء المتغيرة فقط في الـ DOM الحقيقي لتسريع الأداء.' },
+      { id: 'fc3', subjectId: 'project_mgmt', q: 'ما هي أدوار فريق الـ Scrum الثلاثة؟', a: '1. Product Owner: إدارة متطلبات المنتج وقيمته.\n2. Scrum Master: تسهيل العمل وإزالة العوائق.\n3. Development Team: بناء وإنتاج المخرجات التقنية.' },
+      { id: 'fc4', subjectId: 'project_mgmt', q: 'ما هو المسار الحرج (Critical Path) في مخطط جانت؟', a: 'هو التسلسل الأطول للمهام المتتالية التي تحدد أقصر وقت ممكن لإنهاء المشروع بالكامل؛ أي تأخير في أي مهمة داخله يؤخر المشروع كله.' },
+      { id: 'fc5', subjectId: 'databases', q: 'متى يعتبر جدول قاعدة البيانات في الشكل الطبيعي الثالث (3NF)؟', a: 'إذا كان بالفعل في 2NF ولا توجد أي اعتمادية انتقالية (Transitive Dependency)؛ أي لا توجد خاصية غير مفتاحية تعتمد على خاصية أخرى غير مفتاحية.' },
+      { id: 'fc6', subjectId: 'databases', q: 'ما الفرق بين INNER JOIN و LEFT JOIN؟', a: 'INNER JOIN يُرجع الصفوف المتطابقة فقط من كلا الجدولين، بينما LEFT JOIN يُرجع كافة الصفوف من الجدول الأيسر حتى لو لم يتطابق في الجدول الأيمن.', code: 'SELECT s.name, c.title\nFROM students s\nLEFT JOIN courses c ON s.course_id = c.id;' }
+    ];
+
+    const QUIZZES = [
+      {
+        subjectId: 'web_design_2',
+        q: 'ما هي الطريقة الصحيحة لتحديث كائن الحالة (State Object) في useState بلغة React؟',
+        options: ['تعديل الكائن مباشرة: state.count = 5', 'تمرير نسخة جديدة باستخدام Spread: setState(prev => ({...prev, count: 5}))', 'استدعاء دالة refreshState()', 'حذف الخاصية ثم إضافتها'],
+        correct: 1,
+        exp: 'تعتمد React على مبدأ عدم القابلية للتعديل (Immutability). تعديل الكائن مباشرة يمنع React من استشعار التغيير وإعادة رسم المكون.'
+      },
+      {
+        subjectId: 'project_mgmt',
+        q: 'أي اجتماع سكروم يركز على تحليل العمليات الداخلية وتحسين أداء الفريق للسبرنت القادم؟',
+        options: ['Daily Standup', 'Sprint Review', 'Sprint Retrospective', 'Backlog Refinement'],
+        correct: 2,
+        exp: 'الـ Sprint Retrospective مخصص للفريق لمراجعة ما نجح وما يجب تحسينه في بيئة العمل والتواصل.'
+      },
+      {
+        subjectId: 'databases',
+        q: 'ما الفائدة الأساسية من إنشاء فهرس (Index) على حقل في جدول قاعدة البيانات؟',
+        options: ['تسريع عمليات البحث والاستعلام SELECT', 'تقليل حجم الملف على القرص', 'منع تكرار البيانات فقط دون تأثير على السرعة', 'تشفير الحقل تلقائياً'],
+        correct: 0,
+        exp: 'الفهارس تُنشأ لتسريع القراءة والبحث السريع، مع تكلفة صيانة بسيطة عند عمليات الإضافة والتعديل.'
+      }
+    ];
+
+    const VIDEOS = [
+      { id: 'v1', subjectId: 'web_design_2', title: 'كورس React.js كامل وبناء المشاريع الحديثة', youtubeId: 'bMknfKXIFA8', channel: 'FreeCodeCamp' },
+      { id: 'v2', subjectId: 'web_design_2', title: 'احتراف JavaScript ES6+ واستدعاء الـ Fetch APIs', youtubeId: 'W6NZfCO5SIk', channel: 'JS Mastery' },
+      { id: 'v3', subjectId: 'project_mgmt', title: 'دليل شامل لمنهجية Agile و Scrum في إدارة المشاريع', youtubeId: '9TycLR0TqFA', channel: 'PM Central' },
+      { id: 'v4', subjectId: 'databases', title: 'شرح تطبيع قواعد البيانات Normalization 1NF-3NF', youtubeId: 'UrYLYV7WSHM', channel: 'Database Academy' }
+    ];
+
+    function loadStorage(key, defaultVal) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : defaultVal;
+      } catch { return defaultVal; }
+    }
+    function saveStorage(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+    }
+
+    let tasks = loadStorage('tech_planner_tasks', DEFAULT_TASKS);
+    let reminders = loadStorage('tech_planner_reminders', DEFAULT_REMINDERS);
+    let focusMinutesToday = loadStorage('tech_planner_minutes', 0);
+    let sessionsToday = loadStorage('tech_planner_sessions', 0);
+
+    let activeTab = 'planner';
+    let activeSubjectFilter = 'all';
+    let plannerStatusFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+      const sInput = document.getElementById('modalTaskStartDate');
+      const eInput = document.getElementById('modalTaskEndDate');
+      const rDate = document.getElementById('modalRemDate');
+      if (sInput) sInput.value = today;
+      if (eInput) eInput.value = nextWeek;
+      if (rDate) rDate.value = nextWeek;
+
+      renderAll();
+      initQuiz();
+      renderFlashcard();
+    });
+
+    function renderAll() {
+      renderAlerts();
+      renderCourseCards();
+      renderPlannerTasks();
+      renderKanban();
+      renderVideos();
+      updateTimerStats();
+    }
+
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll('.tab-page').forEach(p => p.classList.add('hidden'));
+      const activePage = document.getElementById(`page-${tabId}`);
+      if (activePage) activePage.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-[#6b4224]', 'text-white', 'shadow-xs');
+        btn.classList.add('text-[#4a3325]');
+      });
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('bg-[#6b4224]', 'text-white', 'shadow-xs');
+        activeNav.classList.remove('text-[#4a3325]');
+      }
+
+      document.querySelectorAll('.mob-nav-btn').forEach(btn => {
+        btn.classList.remove('bg-[#6b4224]', 'text-white');
+        btn.classList.add('bg-[#f4ebe1]', 'text-[#4a3325]');
+      });
+      const activeMobNav = document.getElementById(`mob-nav-${tabId}`);
+      if (activeMobNav) {
+        activeMobNav.classList.add('bg-[#6b4224]', 'text-white');
+        activeMobNav.classList.remove('bg-[#f4ebe1]', 'text-[#4a3325]');
+      }
+    }
+
+    function setSubjectFilter(subId) {
+      activeSubjectFilter = subId;
+      document.querySelectorAll('.sub-filter').forEach(btn => {
+        btn.classList.remove('bg-[#4a3325]', 'text-white');
+        btn.classList.add('bg-[#f4ebe1]', 'text-[#4a3325]');
+      });
+      const activeBtn = document.getElementById(`sub-filter-${subId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-[#4a3325]', 'text-white');
+        activeBtn.classList.remove('bg-[#f4ebe1]', 'text-[#4a3325]');
+      }
+      renderAll();
+    }
+
+    function renderAlerts() {
+      const container = document.getElementById('alertsBannerContainer');
+      const activeRems = reminders.filter(r => !r.dismissed && (activeSubjectFilter === 'all' || r.subjectId === activeSubjectFilter));
+
+      if (activeRems.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="flex items-center justify-between text-xs font-bold text-[#6b4224] px-1">
+          <span>🔔 تنبيهات واستحقاقات دراسية هامة (${activeRems.length})</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          ${activeRems.map(r => `
+            <div class="flex items-start justify-between p-3 rounded-2xl bg-[#fff7f0] border border-[#e8be99] text-xs">
+              <div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#f4ebe1] text-[#6b4224]">${SUBJECTS[r.subjectId]?.name}</span>
+                <div class="font-bold text-[#2c1e15] mt-1">${r.title}</div>
+                <div class="text-[11px] text-[#8b5a2b] mt-0.5">📅 ${r.dueDate} (${r.dueTime || '12:00'})</div>
+              </div>
+              <button onclick="dismissReminder('${r.id}')" class="text-[#8c7463] hover:text-[#2c1e15] text-xs font-bold p-1">✕</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function dismissReminder(id) {
+      reminders = reminders.map(r => r.id === id ? { ...r, dismissed: true } : r);
+      saveStorage('tech_planner_reminders', reminders);
+      renderAlerts();
+    }
+
+    function renderCourseCards() {
+      const grid = document.getElementById('courseCardsGrid');
+      const total = tasks.length;
+      const completed = tasks.filter(t => t.status === 'completed').length;
+      const inProgress = tasks.filter(t => t.status === 'in_progress').length;
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      document.getElementById('overallPercentageText').innerText = `${pct}%`;
+      document.getElementById('overallProgressBar').style.width = `${pct}%`;
+      document.getElementById('totalTasksCountText').innerText = `إجمالي المهام: ${total}`;
+      document.getElementById('inProgressTasksCountText').innerText = `قيد العمل: ${inProgress}`;
+      document.getElementById('completedTasksCountText').innerText = `مكتملة: ${completed}`;
+
+      grid.innerHTML = Object.keys(SUBJECTS).map(sId => {
+        const sub = SUBJECTS[sId];
+        const sTasks = tasks.filter(t => t.subjectId === sId);
+        const sDone = sTasks.filter(t => t.status === 'completed').length;
+        const sPct = sTasks.length > 0 ? Math.round((sDone / sTasks.length) * 100) : 0;
+
+        return `
+          <div onclick="setSubjectFilter('${sId}')" class="cursor-pointer p-4 rounded-2xl bg-white/70 hover:bg-white border border-[#decaba] hover:border-[#8b5a2b] transition-all">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#f4ebe1] text-[#6b4224]">${sub.code}</span>
+              <span class="text-[#7a6454] font-bold">${sDone}/${sTasks.length} مهام</span>
+            </div>
+            <h3 class="text-xs sm:text-sm font-black text-[#2c1e15] mb-2 truncate">${sub.name}</h3>
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px] font-bold text-[#6b4224]">
+                <span>الإنجاز</span>
+                <span>${sPct}%</span>
+              </div>
+              <div class="w-full bg-[#eedecf] h-1.5 rounded-full overflow-hidden">
+                <div class="h-full bg-[#8b5a2b] rounded-full" style="width: ${sPct}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setPlannerStatusFilter(st) {
+      plannerStatusFilter = st;
+      document.querySelectorAll('.status-filter-btn').forEach(btn => {
+        if (btn.dataset.status === st) {
+          btn.classList.add('bg-[#6b4224]', 'text-white');
+          btn.classList.remove('bg-[#f4ebe1]', 'text-[#4a3325]');
+        } else {
+          btn.classList.remove('bg-[#6b4224]', 'text-white');
+          btn.classList.add('bg-[#f4ebe1]', 'text-[#4a3325]');
+        }
+      });
+      renderPlannerTasks();
+    }
+
+    function renderPlannerTasks() {
+      const container = document.getElementById('plannerTasksList');
+      const search = (document.getElementById('taskSearchInput')?.value || '').toLowerCase().trim();
+
+      const filtered = tasks.filter(t => {
+        if (activeSubjectFilter !== 'all' && t.subjectId !== activeSubjectFilter) return false;
+        if (plannerStatusFilter !== 'all' && t.status !== plannerStatusFilter) return false;
+        if (search && !t.title.toLowerCase().includes(search) && !t.description.toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 bg-white rounded-3xl border border-dashed border-[#decaba] p-6 text-xs text-[#7a6454]">
+            لا توجد مهام مطابقة للبحث أو الفلتر
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(t => {
+        const sub = SUBJECTS[t.subjectId];
+        const isDone = t.status === 'completed';
+        const daysLeft = Math.ceil((new Date(t.endDate) - new Date()) / (1000 * 60 * 60 * 24));
+
+        return `
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border ${isDone ? 'border-[#c4dec9] opacity-80' : 'border-[#decaba]'} transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1.5 flex-1">
+              <div class="flex items-center gap-2 flex-wrap text-[10px]">
+                <span class="font-extrabold px-2 py-0.5 rounded-md bg-[#f4ebe1] text-[#6b4224]">${sub?.name}</span>
+                <span class="font-bold px-2 py-0.5 rounded-md ${t.priority === 'high' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">أولوية ${t.priority === 'high' ? 'عالية' : 'متوسطة'}</span>
+              </div>
+              <h4 class="text-xs sm:text-sm font-bold text-[#2c1e15] ${isDone ? 'line-through text-[#7a6454]' : ''}">${t.title}</h4>
+              ${t.description ? `<p class="text-[11px] text-[#6b5545] line-clamp-2">${t.description}</p>` : ''}
+              <div class="flex items-center gap-3 text-[11px] text-[#7a6454] pt-1">
+                <span>البداية: <strong>${t.startDate}</strong></span>
+                <span>النهاية: <strong>${t.endDate}</strong></span>
+                <span class="text-[#8b5a2b] font-bold">${daysLeft >= 0 ? `⏳ متبقي ${daysLeft} يوم` : 'منتهي'}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="changeTaskStatus('${t.id}', 'todo')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg ${t.status === 'todo' ? 'bg-[#6b4224] text-white' : 'bg-[#f4ebe1] text-[#4a3325]'}">انتظار</button>
+              <button onclick="changeTaskStatus('${t.id}', 'in_progress')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg ${t.status === 'in_progress' ? 'bg-[#6b4224] text-white' : 'bg-[#f4ebe1] text-[#4a3325]'}">تنفيذ</button>
+              <button onclick="changeTaskStatus('${t.id}', 'completed')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg ${t.status === 'completed' ? 'bg-[#2d6a4f] text-white' : 'bg-[#f4ebe1] text-[#4a3325]'}">إنجاز</button>
+              <button onclick="syncToGoogleCalendar('${t.title}', '${t.description}', '${t.startDate}', '${t.endDate}')" class="p-1.5 rounded-lg bg-[#faf6f0] border border-[#decaba] text-[#6b4224] text-xs" title="إضافة إلى تقويم Google">📅</button>
+              <button onclick="deleteTask('${t.id}')" class="p-1.5 rounded-lg text-red-600 hover:bg-red-50 text-xs" title="حذف">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function changeTaskStatus(id, newStatus) {
+      tasks = tasks.map(t => {
+        if (t.id === id) {
+          if (newStatus === 'completed' && t.status !== 'completed') {
+            triggerConfetti();
+          }
+          return { ...t, status: newStatus };
+        }
+        return t;
+      });
+      saveStorage('tech_planner_tasks', tasks);
+      renderAll();
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      saveStorage('tech_planner_tasks', tasks);
+      renderAll();
+    }
+
+    function syncToGoogleCalendar(title, desc, start, end) {
+      const s = start.replace(/-/g, '');
+      const e = end.replace(/-/g, '');
+      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('📚 ' + title)}&details=${encodeURIComponent(desc || 'مهمة دراسية تقنية')}&dates=${s}/${e}`;
+      window.open(url, '_blank');
+    }
+
+    function renderKanban() {
+      const todo = tasks.filter(t => t.status === 'todo');
+      const inProgress = tasks.filter(t => t.status === 'in_progress');
+      const completed = tasks.filter(t => t.status === 'completed');
+
+      document.getElementById('kbCountTodo').innerText = todo.length;
+      document.getElementById('kbCountInProgress').innerText = inProgress.length;
+      document.getElementById('kbCountCompleted').innerText = completed.length;
+
+      const renderKbCard = (t) => `
+        <div class="bg-white p-3.5 rounded-2xl border border-[#decaba] shadow-xs space-y-2 text-xs">
+          <div class="flex justify-between items-center text-[10px]">
+            <span class="font-bold px-1.5 py-0.5 rounded-md bg-[#f4ebe1] text-[#6b4224]">${SUBJECTS[t.subjectId]?.name}</span>
+            <span class="text-[#8b5a2b] font-bold">📅 ${t.endDate}</span>
+          </div>
+          <div class="font-bold text-[#2c1e15]">${t.title}</div>
+          <div class="flex justify-between items-center pt-2 border-t border-[#f4ebe1]">
+            <div class="flex gap-1">
+              ${t.status !== 'todo' ? `<button onclick="changeTaskStatus('${t.id}', 'todo')" class="p-1 rounded bg-[#f4ebe1] text-[10px]">➡️</button>` : ''}
+              ${t.status !== 'completed' ? `<button onclick="changeTaskStatus('${t.id}', '${t.status === 'todo' ? 'in_progress' : 'completed'}')" class="p-1 rounded bg-[#f4ebe1] text-[10px]">⬅️</button>` : ''}
+            </div>
+            <button onclick="deleteTask('${t.id}')" class="text-red-500 text-xs">🗑️</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('kbListTodo').innerHTML = todo.map(renderKbCard).join('') || '<div class="text-center py-6 text-xs text-[#9c8474]">لا توجد مهام بالانتظار</div>';
+      document.getElementById('kbListInProgress').innerHTML = inProgress.map(renderKbCard).join('') || '<div class="text-center py-6 text-xs text-[#9c8474]">لا توجد مهام قيد التنفيذ</div>';
+      document.getElementById('kbListCompleted').innerHTML = completed.map(renderKbCard).join('') || '<div class="text-center py-6 text-xs text-[#9c8474]">لا توجد مهام مكتملة</div>';
+    }
+
+    function renderVideos() {
+      const grid = document.getElementById('videosListGrid');
+      grid.innerHTML = VIDEOS.map(v => `
+        <div class="p-3.5 rounded-2xl border border-[#decaba] bg-white space-y-2">
+          <div class="aspect-video bg-[#2c1e15] rounded-xl overflow-hidden cursor-pointer relative group" onclick="playVideo('${v.youtubeId}')">
+            <img src="https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <span class="w-10 h-10 rounded-full bg-[#8b5a2b] text-white flex items-center justify-center text-sm">▶️</span>
+            </div>
+          </div>
+          <div class="text-xs font-bold text-[#2c1e15]">${v.title}</div>
+          <div class="flex justify-between items-center text-[10px] text-[#7a6454]">
+            <span>${SUBJECTS[v.subjectId]?.name}</span>
+            <span>${v.channel}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function playVideo(yId) {
+      document.getElementById('videoPlayerArea').classList.remove('hidden');
+      document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${yId}?autoplay=1`;
+    }
+
+    // Pomodoro Timer
+    let timerDuration = 25 * 60;
+    let timerTimeLeft = 25 * 60;
+    let timerInterval = null;
+    let timerRunning = false;
+    let currentTimerMode = 'focus';
+    let ambientType = 'none';
+    let audioCtx = null;
+    let noiseNode = null;
+
+    function setTimerMode(m) {
+      currentTimerMode = m;
+      timerRunning = false;
+      clearInterval(timerInterval);
+      document.getElementById('timerToggleBtn').innerText = '▶️ ابدأ التركيز';
+
+      document.querySelectorAll('.tmode-btn').forEach(b => {
+        b.classList.remove('bg-[#6b4224]', 'text-white');
+        b.classList.add('bg-[#faf6f0]', 'text-[#4a3325]');
+      });
+      document.getElementById(`tmode-${m}`).classList.add('bg-[#6b4224]', 'text-white');
+      document.getElementById(`tmode-${m}`).classList.remove('bg-[#faf6f0]', 'text-[#4a3325]');
+
+      if (m === 'focus') {
+        timerDuration = 25 * 60;
+        document.getElementById('timerModeLabel').innerText = 'جلسة تركيز';
+      } else if (m === 'short') {
+        timerDuration = 5 * 60;
+        document.getElementById('timerModeLabel').innerText = 'استراحة قصيرة';
+      } else {
+        timerDuration = 15 * 60;
+        document.getElementById('timerModeLabel').innerText = 'استراحة طويلة';
+      }
+
+      timerTimeLeft = timerDuration;
+      updateTimerDisplay();
+    }
+
+    function updateTimerSubject(subId) {
+      document.getElementById('timerSubjectLabel').innerText = SUBJECTS[subId]?.name || '';
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timerToggleBtn').innerText = '▶️ استئناف';
+        stopAmbientSound();
+      } else {
+        timerRunning = true;
+        document.getElementById('timerToggleBtn').innerText = '⏸️ إيقاف مؤقت';
+        startAmbientSound();
+        timerInterval = setInterval(() => {
+          if (timerTimeLeft > 0) {
+            timerTimeLeft--;
+            updateTimerDisplay();
+          } else {
+            completeTimer();
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerTimeLeft = timerDuration;
+      document.getElementById('timerToggleBtn').innerText = '▶️ ابدأ التركيز';
+      stopAmbientSound();
+      updateTimerDisplay();
+    }
+
+    function skipTimer() {
+      setTimerMode(currentTimerMode === 'focus' ? 'short' : 'focus');
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerTimeLeft / 60);
+      const secs = timerTimeLeft % 60;
+      document.getElementById('timerDisplay').innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      const pct = (timerTimeLeft / timerDuration);
+      const offset = 283 - (283 * pct);
+      document.getElementById('timerProgressCircle').style.strokeDashoffset = offset;
+    }
+
+    function completeTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      stopAmbientSound();
+      playChime();
+      triggerConfetti();
+
+      if (currentTimerMode === 'focus') {
+        focusMinutesToday += Math.round(timerDuration / 60);
+        sessionsToday++;
+        saveStorage('tech_planner_minutes', focusMinutesToday);
+        saveStorage('tech_planner_sessions', sessionsToday);
+        updateTimerStats();
+      }
+
+      alert('أحسنت! اكتملت الجلسة بنجاح 🎉');
+      setTimerMode(currentTimerMode === 'focus' ? 'short' : 'focus');
+    }
+
+    function updateTimerStats() {
+      document.getElementById('todayMinutesText').innerText = `${focusMinutesToday} دقيقة`;
+      document.getElementById('todaySessionsCountText').innerText = `${sessionsToday} جلسة`;
+      document.getElementById('totalSessionsCountText').innerText = `${sessionsToday} جلسة مسجلة`;
+    }
+
+    function setAmbientSound(type) {
+      ambientType = type;
+      document.querySelectorAll('.snd-btn').forEach(b => {
+        b.classList.remove('bg-white', 'text-[#2c1e15]', 'shadow-xs');
+        b.classList.add('text-[#4a3325]');
+      });
+      document.getElementById(`snd-${type}`).classList.add('bg-white', 'text-[#2c1e15]', 'shadow-xs');
+
+      if (timerRunning) {
+        startAmbientSound();
+      }
+    }
+
+    function startAmbientSound() {
+      stopAmbientSound();
+      if (ambientType === 'none') return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          data[i] = (lastOut + 0.02 * white) / 1.02;
+          lastOut = data[i];
+          data[i] *= 2.5;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+        const filter = audioCtx.createBiquadFilter();
+        filter.frequency.value = ambientType === 'rain' ? 600 : 900;
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.06;
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
+        noiseNode = noise;
+      } catch (e) {}
+    }
+
+    function stopAmbientSound() {
+      try {
+        if (noiseNode) { noiseNode.stop(); noiseNode.disconnect(); noiseNode = null; }
+      } catch {}
+    }
+
+    function playChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+      } catch {}
+    }
+
+    function triggerConfetti() {
+      try {
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+        }
+      } catch {}
+    }
+
+    // Review Hub (Flashcards, Quizzes)
+    let currentFcIndex = 0;
+    function setReviewTab(t) {
+      ['flashcards', 'quiz', 'cheatsheet'].forEach(id => {
+        document.getElementById(`review-${id}-view`).classList.add('hidden');
+        document.getElementById(`rev-tab-${id}`).classList.remove('bg-[#6b4224]', 'text-white');
+        document.getElementById(`rev-tab-${id}`).classList.add('text-[#4a3325]');
+      });
+      document.getElementById(`review-${t}-view`).classList.remove('hidden');
+      document.getElementById(`rev-tab-${t}`).classList.add('bg-[#6b4224]', 'text-white');
+      document.getElementById(`rev-tab-${t}`).classList.remove('text-[#4a3325]');
+    }
+
+    function renderFlashcard() {
+      const card = FLASHCARDS[currentFcIndex];
+      document.getElementById('flashcardCounter').innerText = `بطاقة ${currentFcIndex + 1} من ${FLASHCARDS.length}`;
+      document.getElementById('fcFrontSubject').innerText = SUBJECTS[card.subjectId]?.name || '';
+      document.getElementById('fcFrontQuestion').innerText = card.q;
+      document.getElementById('fcBackAnswer').innerText = card.a;
+
+      const codeWrapper = document.getElementById('fcBackCodeWrapper');
+      if (card.code) {
+        codeWrapper.classList.remove('hidden');
+        document.getElementById('fcBackCode').innerText = card.code;
+      } else {
+        codeWrapper.classList.add('hidden');
+      }
+
+      document.getElementById('activeFlashcardInner').classList.remove('flipped');
+    }
+
+    function flipCurrentCard() {
+      document.getElementById('activeFlashcardInner').classList.toggle('flipped');
+    }
+    function nextFlashcard() {
+      currentFcIndex = (currentFcIndex + 1) % FLASHCARDS.length;
+      renderFlashcard();
+    }
+    function prevFlashcard() {
+      currentFcIndex = (currentFcIndex - 1 + FLASHCARDS.length) % FLASHCARDS.length;
+      renderFlashcard();
+    }
+
+    // Quiz Engine
+    let quizIdx = 0;
+    let quizScore = 0;
+    let quizSelected = null;
+    let quizSubmitted = false;
+
+    function initQuiz() {
+      quizIdx = 0;
+      quizScore = 0;
+      quizSelected = null;
+      quizSubmitted = false;
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+      const q = QUIZZES[quizIdx];
+      quizSelected = null;
+      quizSubmitted = false;
+
+      document.getElementById('quizCounterText').innerText = `السؤال ${quizIdx + 1} من ${QUIZZES.length}`;
+      document.getElementById('quizScoreText').innerText = `النتيجة: ${quizScore} / ${QUIZZES.length}`;
+      document.getElementById('quizSubjectBadge').innerText = SUBJECTS[q.subjectId]?.name || '';
+      document.getElementById('quizQuestionText').innerText = q.q;
+      document.getElementById('quizExplanationCard').classList.add('hidden');
+      document.getElementById('quizActionBtn').innerText = 'تأكيد الإجابة';
+
+      const optionsList = document.getElementById('quizOptionsList');
+      optionsList.innerHTML = q.options.map((opt, i) => `
+        <button onclick="selectQuizOption(${i})" id="q-opt-${i}" class="quiz-opt-btn w-full text-right p-3.5 rounded-2xl border border-[#decaba] bg-[#faf6f0] hover:bg-[#ede0d2] text-xs font-semibold text-[#2c1e15] flex items-center justify-between">
+          <span>${i + 1}. ${opt}</span>
+          <span id="q-opt-icon-${i}"></span>
+        </button>
+      `).join('');
+    }
+
+    function selectQuizOption(idx) {
+      if (quizSubmitted) return;
+      quizSelected = idx;
+      document.querySelectorAll('.quiz-opt-btn').forEach((b, i) => {
+        if (i === idx) {
+          b.classList.add('border-[#8b5a2b]', 'bg-[#f4ebe1]', 'ring-2', 'ring-[#8b5a2b]/30');
+        } else {
+          b.classList.remove('border-[#8b5a2b]', 'bg-[#f4ebe1]', 'ring-2', 'ring-[#8b5a2b]/30');
+        }
+      });
+    }
+
+    function handleQuizAction() {
+      if (!quizSubmitted) {
+        if (quizSelected === null) {
+          alert('يرجى اختيار إجابة أولاً');
+          return;
+        }
+        quizSubmitted = true;
+        const q = QUIZZES[quizIdx];
+        const isCorrect = (quizSelected === q.correct);
+        if (isCorrect) {
+          quizScore++;
+          triggerConfetti();
+        }
+
+        document.querySelectorAll('.quiz-opt-btn').forEach((b, i) => {
+          if (i === q.correct) {
+            b.classList.add('bg-green-100', 'border-green-500', 'text-green-900', 'font-bold');
+            document.getElementById(`q-opt-icon-${i}`).innerText = '✅';
+          } else if (i === quizSelected && !isCorrect) {
+            b.classList.add('bg-red-100', 'border-red-500', 'text-red-900');
+            document.getElementById(`q-opt-icon-${i}`).innerText = '❌';
+          }
+        });
+
+        const exp = document.getElementById('quizExplanationCard');
+        exp.classList.remove('hidden');
+        exp.className = isCorrect ? 'p-4 rounded-2xl border border-green-300 bg-green-50 text-green-900 text-xs' : 'p-4 rounded-2xl border border-red-300 bg-red-50 text-red-900 text-xs';
+        exp.innerHTML = `<strong>${isCorrect ? 'إجابة صحيحة! 🎉' : 'إجابة غير صحيحة:'}</strong><p class="mt-1">${q.exp}</p>`;
+
+        document.getElementById('quizActionBtn').innerText = (quizIdx < QUIZZES.length - 1) ? 'السؤال التالي ➡️' : 'إعادة الاختبار 🔄';
+      } else {
+        if (quizIdx < QUIZZES.length - 1) {
+          quizIdx++;
+          renderQuizQuestion();
+        } else {
+          initQuiz();
+        }
+      }
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      if (id === 'videosModal') {
+        document.getElementById('videoIframe').src = '';
+        document.getElementById('videoPlayerArea').classList.add('hidden');
+      }
+    }
+
+    function handleAddTaskForm(e) {
+      e.preventDefault();
+      const title = document.getElementById('modalTaskTitle').value.trim();
+      const desc = document.getElementById('modalTaskDesc').value.trim();
+      const subjectId = document.getElementById('modalTaskSubject').value;
+      const startDate = document.getElementById('modalTaskStartDate').value;
+      const endDate = document.getElementById('modalTaskEndDate').value;
+      const priority = document.getElementById('modalTaskPriority').value;
+      const hours = Number(document.getElementById('modalTaskHours').value);
+
+      if (!title) return;
+
+      const newTask = {
+        id: 't-' + Date.now(),
+        subjectId,
+        title,
+        description: desc,
+        startDate,
+        endDate,
+        priority,
+        status: 'todo',
+        hours
+      };
+
+      tasks.unshift(newTask);
+      saveStorage('tech_planner_tasks', tasks);
+      closeModal('addTaskModal');
+      document.getElementById('modalTaskTitle').value = '';
+      document.getElementById('modalTaskDesc').value = '';
+      renderAll();
+    }
+
+    function handleAddReminderForm(e) {
+      e.preventDefault();
+      const title = document.getElementById('modalRemTitle').value.trim();
+      const subjectId = document.getElementById('modalRemSubject').value;
+      const dueDate = document.getElementById('modalRemDate').value;
+      const dueTime = document.getElementById('modalRemTime').value;
+
+      if (!title) return;
+
+      const newRem = {
+        id: 'r-' + Date.now(),
+        subjectId,
+        title,
+        dueDate,
+        dueTime,
+        dismissed: false
+      };
+
+      reminders.unshift(newRem);
+      saveStorage('tech_planner_reminders', reminders);
+      closeModal('addReminderModal');
+      document.getElementById('modalRemTitle').value = '';
+      renderAll();
+    }
+
+    function sendAiQuickPrompt(txt) {
+      document.getElementById('aiInputText').value = txt;
+      handleSendAiMessage(new Event('submit'));
+    }
+
+    async function handleSendAiMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('aiInputText');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatThread = document.getElementById('aiChatThread');
+      
+      chatThread.innerHTML += `
+        <div class="flex gap-2 flex-row-reverse">
+          <div class="w-7 h-7 rounded-full bg-[#6b4224] text-white flex items-center justify-center font-bold text-xs shrink-0">👤</div>
+          <div class="bg-[#6b4224] text-white p-3 rounded-2xl leading-relaxed max-w-[85%]">${text}</div>
+        </div>
+      `;
+      input.value = '';
+      chatThread.scrollTop = chatThread.scrollHeight;
+
+      const loadingId = 'ai-loading-' + Date.now();
+      chatThread.innerHTML += `
+        <div id="${loadingId}" class="flex gap-2">
+          <div class="w-7 h-7 rounded-full bg-[#ebd8c6] text-[#5a3617] flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+          <div class="bg-white p-3 rounded-2xl border border-[#decaba] text-[#7a6454]">جاري التفكير وتجهيز الإجابة الأكاديمية...</div>
+        </div>
+      `;
+      chatThread.scrollTop = chatThread.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ role: 'user', text }],
+            useSearch: true
+          })
+        });
+
+        const data = await res.json();
+        const loadEl = document.getElementById(loadingId);
+        if (loadEl) loadEl.remove();
+
+        const reply = data.reply || 'تمت معالجة السؤال بنجاح.';
+        chatThread.innerHTML += `
+          <div class="flex gap-2">
+            <div class="w-7 h-7 rounded-full bg-[#ebd8c6] text-[#5a3617] flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+            <div class="bg-white p-3.5 rounded-2xl border border-[#decaba] text-[#2c1e15] leading-relaxed max-w-[85%] whitespace-pre-line">${reply}</div>
+          </div>
+        `;
+      } catch (err) {
+        const loadEl = document.getElementById(loadingId);
+        if (loadEl) loadEl.remove();
+
+        let fallback = 'أنا هنا لمساعدتك! لمواد تصميم مواقع (2) ركز على دورة حياة React والـ Hooks، ولمشاريع البرمجية راجع الـ Scrum Roles، ولقواعد البيانات احرص على حل تمارين Normalization 3NF.';
+        if (text.includes('Normalization') || text.includes('2NF') || text.includes('3NF')) {
+          fallback = 'الشكل الطبيعي الثالث (3NF) يشترط أن يكون الجدول في 2NF وألا توجد أي اعتمادية انتقالية (Transitive Dependency)، أي أن كل صفة غير مفتاحية تعتمد فقط وبشكل مباشر على المفتاح الأساسي (A -> B وليس A -> B -> C).';
+        } else if (text.includes('Hook') || text.includes('React')) {
+          fallback = 'لكتابة Custom Hook في React، ابدأ بتسمية الدالة ببادئة use مثل useFetch، واستخدم داخلها useState لتخزين البيانات وحالة الخطأ، و useEffect لاستدعاء الـ API مع try/catch.';
+        }
+
+        chatThread.innerHTML += `
+          <div class="flex gap-2">
+            <div class="w-7 h-7 rounded-full bg-[#ebd8c6] text-[#5a3617] flex items-center justify-center font-bold text-xs shrink-0">🤖</div>
+            <div class="bg-white p-3.5 rounded-2xl border border-[#decaba] text-[#2c1e15] leading-relaxed max-w-[85%]">${fallback}</div>
+          </div>
+        `;
+      }
+      chatThread.scrollTop = chatThread.scrollHeight;
+    }
+  </script>
+</body>
+</html>
